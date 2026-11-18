@@ -24,8 +24,30 @@
     border-radius: 15px;
     object-fit: contain;
 }
-.prevention-section h2,
-.prevention-section h3 {
+/* Diseases heading */
+#diseases .section-heading h2 {
     font-size: 36px;
-    font-weight: bold;
+}
+
+/* Disease names */
+.disease-card h3 {
+    font-size: 22px;
+}
+
+/* Prevention heading and names */
+#prevention .section-heading h2 {
+    font-size: 36px;
+}
+
+.habit-card h3 {
+    font-size: 20px;
+}
+
+/* Precautions heading and names */
+#precautions .precautions-grid h2 {
+    font-size: 36px;
+}
+
+.precaution-list h3 {
+    font-size: 18px;
 }
