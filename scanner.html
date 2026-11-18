@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HygieneCare - AI Skin Disease Scanner</title>
+<style>
+  *{box-sizing:border-box;font-family:Inter,system-ui,sans-serif}
+  body{margin:0;background:#f6f9fb;color:#111}
+  .wrap{max-width:1000px;margin:0 auto;padding:20px}
+  .header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+  .logo{font-weight:800;font-size:22px} .logo span{color:#0ea47a}
+  .badge{padding:8px 14px;border-radius:999px;font-weight:700;font-size:13px}
+  .badge.demo{background:#fff3cd;color:#856404;border:1px solid #ffe08a}
+  .badge.live{background:#d1fae5;color:#065f46;border:1px solid #6ee7b7}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:20px}
+  @media(max-width:700px){.grid{grid-template-columns:1fr}}
+  .card{background:#fff;border-radius:16px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,.06)}
+  h1{font-size:32px;line-height:1.1;margin:10px 0}
+  .muted{color:#666;line-height:1.5}
+  .upload-box{border:2px dashed #cbd5e1;border-radius:12px;padding:20px;text-align:center}
+  #preview{max-width:100%;max-height:280px;border-radius:12px;display:none;margin:14px auto}
+  button{cursor:pointer;border:0;border-radius:10px;padding:12px 18px;font-weight:700}
+  .btn-primary{background:#111;color:#fff;width:100%}
+  .btn-primary:disabled{opacity:.5}
+  .btn-secondary{background:#eef2f7;color:#111}
+  .btn-back{background:#fff;border:1px solid #ddd;color:#111;text-decoration:none;padding:10px 16px;border-radius:10px;font-weight:700}
+  .result{margin-top:16px;padding:16px;border-radius:12px;background:#f8fafc;display:none}
+  .result.success{background:#ecfdf5}
+  .result.uncertain{background:#fffbeb}
+  .result.demo{background:#fff3cd}
+  ul{padding-left:18px;line-height:1.6}
+  .disclaimer{font-size:12px;color:#888;margin-top:16px;line-height:1.5}
+  .conf-bar{height:10px;background:#e2e8f0;border-radius:99px;overflow:hidden;margin:8px 0}
+  .conf-fill{height:100%;background:#0ea47a}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <div class="logo">+ Hygiene<span>Care</span></div>
+    <div style="display:flex;gap:10px;align-items:center">
+      <div id="statusBadge" class="badge demo">● DEMO MODE - Model Not Connected</div>
+      <a href="index.html" class="btn-back">← Back to Home</a>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <div style="font-size:11px;letter-spacing:2px;color:#0ea47a;font-weight:800">AI-ASSISTED SCREENING</div>
+      <h1>AI Skin Disease Scanner</h1>
+      <p class="muted">Upload or capture a photo of a skin concern and get an educational screening summary - possible condition, common symptoms, precautions and when to see a dermatologist.</p>
+      <ul class="muted">
+        <li>Upload from gallery or use your camera</li>
+        <li>Image is processed securely via backend API</li>
+        <li>Not a replacement for professional advice</li>
+      </ul>
+      <p class="disclaimer">HygieneCare does not perform AI analysis or diagnose skin conditions unless a real, validated model is connected via secure backend API.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Upload a skin photo</h3>
+      <div class="upload-box">
+        <p class="muted">Choose an image from your device<br> JPG / PNG / WEBP, Max 10MB</p>
+        <input type="file" id="fileInput" accept="image/*" hidden>
+        <button class="btn-secondary" onclick="document.getElementById('fileInput').click()">Choose Image</button>
+        <img id="preview" alt="preview">
+        <p id="fileName" class="muted"></p>
+      </div>
+      <button id="analyzeBtn" class="btn-primary" style="margin-top:14px" disabled>Analyze Image</button>
+      <p id="loading" class="muted" style="display:none;text-align:center">Analyzing... Please wait</p>
+      <div id="resultBox" class="result"></div>
+      <p class="disclaimer">Tips: Take photo in daylight, close-up, in focus, no flash, no filters.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+const API_BASE = "http://localhost:8000"; // Backend deploy ayyaka ikkada Render URL pettali
+const fileInput = document.getElementById('fileInput');
+const preview = document.getElementById('preview');
+const analyzeBtn = document.getElementById('analyzeBtn');
+const resultBox = document.getElementById('resultBox');
+const statusBadge = document.getElementById('statusBadge');
+let selectedFile = null;
+
+async function checkHealth(){
+  try{
+    const res = await fetch(`${API_BASE}/api/health`);
+    const data = await res.json();
+    if(data.model_loaded){
+      statusBadge.textContent = "● LIVE - Model Connected";
+      statusBadge.className = "badge live";
+    } else {
+      statusBadge.textContent = "● DEMO MODE - Model Not Connected";
+      statusBadge.className = "badge demo";
+    }
+  }catch(e){
+    statusBadge.textContent = "● DEMO MODE - Backend Not Reachable";
+    statusBadge.className = "badge demo";
+  }
+}
+checkHealth();
+
+fileInput.addEventListener('change', (e)=>{
+  selectedFile = e.target.files[0];
+  if(!selectedFile) return;
+  document.getElementById('fileName').textContent = selectedFile.name;
+  const reader = new FileReader();
+  reader.onload = (ev)=>{ preview.src = ev.target.result; preview.style.display='block'; };
+  reader.readAsDataURL(selectedFile);
+  analyzeBtn.disabled = false;
+  resultBox.style.display='none';
+});
+
+analyzeBtn.addEventListener('click', async ()=>{
+  if(!selectedFile) return;
+  document.getElementById('loading').style.display='block';
+  analyzeBtn.disabled = true;
+  resultBox.style.display='none';
+  const formData = new FormData();
+  formData.append('file', selectedFile);
+  try{
+    const res = await fetch(`${API_BASE}/api/analyze`, { method:'POST', body: formData });
+    const data = await res.json();
+    document.getElementById('loading').style.display='none';
+    analyzeBtn.disabled = false;
+    resultBox.style.display='block';
+    if(data.status === 'demo_mode'){
+      resultBox.className = 'result demo';
+      resultBox.innerHTML = `<h3>⚠️ DEMO MODE</h3><p>${data.message}</p><p><b>No real prediction was made.</b> Connect a trained model to backend to enable real analysis.</p>`;
+      return;
+    }
+    if(data.status === 'uncertain'){
+      resultBox.className = 'result uncertain';
+      resultBox.innerHTML = `<h3>❓ Unable to Classify</h3><p>${data.message}</p><p>Confidence: ${(data.confidence*100).toFixed(1)}%</p><p><b>Next step:</b> Retake photo in daylight or see a dermatologist.</p>`;
+      return;
+    }
+    if(data.status === 'success'){
+      const conf = (data.confidence*100).toFixed(1);
+      resultBox.className = 'result success';
+      resultBox.innerHTML = `
+        <h3>Result: ${data.display_name}</h3>
+        <p>Confidence: <b>${conf}%</b></p>
+        <div class="conf-bar"><div class="conf-fill" style="width:${conf}%"></div></div>
+        <p><b>Common Symptoms:</b></p><ul>${data.symptoms.map(s=>`<li>${s}</li>`).join('')}</ul>
+        <p><b>Precautions:</b></p><ul>${data.precautions.map(s=>`<li>${s}</li>`).join('')}</ul>
+        <p><b>When to see a dermatologist:</b> ${data.see_doctor}</p>
+        <p class="disclaimer">${data.disclaimer}</p>`;
+      return;
+    }
+  }catch(err){
+    document.getElementById('loading').style.display='none';
+    analyzeBtn.disabled = false;
+    resultBox.style.display='block';
+    resultBox.className='result demo';
+    resultBox.innerHTML = `<h3>⚠️ DEMO MODE</h3><p>Backend not reachable. No real analysis performed.</p>`;
+  }
+});
+</script>
+</body>
+</html>
