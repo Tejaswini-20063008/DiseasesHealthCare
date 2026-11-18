@@ -24,3 +24,8 @@
     border-radius: 15px;
     object-fit: contain;
 }
+.prevention-section h2,
+.prevention-section h3 {
+    font-size: 36px;
+    font-weight: bold;
+}
