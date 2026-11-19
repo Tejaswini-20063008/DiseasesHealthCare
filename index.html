@@ -179,7 +179,7 @@ function getHTML(n){let d=DATA[n];return `<h4>🦠 What is it?</h4><p>${d.what}<
 async function checkDisease(){
   let file = document.getElementById('skinImage').files[0];
   if(!file) return alert("Photo select cheyyi!");
-  if(HF_TOKEN==="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") return alert("Token pettaleedu! dashboard.html lo unna token ikkada paste cheyyi");
+  if(HF_TOKEN==="hf_nee_token_ikkada") return alert("Token pettaleedu! dashboard.html lo unna token ikkada paste cheyyi");
   let box = document.getElementById('scannerResult');
   box.hidden = false;
   document.getElementById('diseaseName').innerText = "⏳ Checking with AI...";
