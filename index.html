@@ -168,7 +168,6 @@
   <script src="script.js"></script> 
   <script>
 const HF_TOKEN = "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"; // dashboard.html lo unna ade token ikkada pettu
-
 const DATA = {
 "Ringworm":{title:"Ringworm (Thamarlu)",what:"Fungus valla vache infection. Ring shape lo red patch vasthadhi.",symptoms:["Round red patch, chuttu red ga","Chala itching / durada","Dry, scaly skin"],spreads:["Direct skin contact tho","Towels, clothes share cheste","Pets nunchi"],prevention:["Skin dry ga unchu","Towels share cheyyaku","Sweaty clothes marchu"],cure:["Doctor cheppina Antifungal cream 2-4 weeks","Full course aapeyyaku","Clothes hot water lo wash cheyyi"]},
 "Acne":{title:"Acne (Mokalu)",what:"Pores lo oil + bacteria valla vache problem.",symptoms:["Whiteheads, Blackheads","Red pimples, pus"],spreads:["Contagious KADU"],prevention:["Roju 2 sarlu face wash","Face touch cheyyaku"],cure:["Doctor gel vadali","Pimples pinch cheyyaku"]},
@@ -180,7 +179,7 @@ function getHTML(n){let d=DATA[n];return `<h4>🦠 What is it?</h4><p>${d.what}<
 async function checkDisease(){
   let file = document.getElementById('skinImage').files[0];
   if(!file) return alert("Photo select cheyyi!");
-  if(HF_TOKEN==="hf_nee_token_ikkada") return alert("Token pettaleedu! dashboard.html lo unna token ikkada paste cheyyi");
+  if(HF_TOKEN==="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") return alert("Token pettaleedu! dashboard.html lo unna token ikkada paste cheyyi");
   let box = document.getElementById('scannerResult');
   box.hidden = false;
   document.getElementById('diseaseName').innerText = "⏳ Checking with AI...";
