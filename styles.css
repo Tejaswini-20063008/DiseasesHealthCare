@@ -15,7 +15,8 @@
 @media(max-width:760px){.container{width:min(100% - 32px,560px)}.section{padding:68px 0}.site-header{height:66px}.menu-toggle{display:block}.main-nav{display:none;position:absolute;top:65px;left:0;right:0;background:white;padding:14px 22px 20px;border-bottom:1px solid var(--line);box-shadow:0 15px 25px rgba(20,60,48,.08);align-items:stretch;gap:0}.main-nav.open{display:flex;flex-direction:column}.main-nav a{font-size:12px;padding:11px 0;border-bottom:1px solid #f0f4f1}.hero{padding:55px 0 65px}.hero-grid,.scanner-grid,.precautions-grid,.about-grid{grid-template-columns:1fr}.hero h1{font-size:42px}.hero-art{height:370px;margin-top:5px}.hero-illustration{width:285px;height:285px}.family-emoji{font-size:108px}.art-glow{width:320px;height:320px}.daily-tip{right:0;top:0}.hero-caption{right:-2px;bottom:0}.wash-card{left:-3px;bottom:40px}.stats-grid{grid-template-columns:1fr}.stat-card p{min-height:0}.disease-grid{grid-template-columns:repeat(2,1fr)}.habit-grid{grid-template-columns:repeat(2,1fr)}.scanner-copy h2{font-size:32px}.precautions-grid{gap:30px}.about-grid{gap:25px}.footer-grid{grid-template-columns:repeat(2,1fr);gap:28px}.footer-brand{grid-column:1/-1}.footer-bottom{gap:10px;flex-direction:column}.section-heading.centered{margin-bottom:30px}}
 @media(max-width:460px){.hero h1{font-size:35px;letter-spacing:-1.5px}.hero-lead{font-size:13px}.trust-row{font-size:9px;gap:7px}.hero-art{transform:scale(.9);margin:-5px -15px}.disease-grid{grid-template-columns:1fr}.habit-grid{grid-template-columns:1fr 1fr;gap:10px}.habit-card{padding:16px}.filter-row{gap:6px}.filter{font-size:9px;padding:8px 10px}.quiz-card{padding:20px}.quiz-bottom{align-items:flex-start;flex-direction:column}.quiz-bottom .btn{width:100%}.footer-grid{gap:20px}.safe-pill{display:none}}
 .hero-art img,
-.prevention-art img {
+.prevention-art img
+.scanner-art img {
     width: 100%;
     max-width: 600px;
     height: auto;
