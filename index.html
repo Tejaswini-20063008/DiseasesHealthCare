@@ -91,8 +91,9 @@
       </div>
           <input type="file" id="skinImage" accept="image/png,image/jpeg,image/webp" hidden>
           <div class="image-preview" id="imagePreview" hidden><img id="previewImg" alt="Selected skin image preview"><button class="text-button" id="removeImage" type="button">Remove image</button></div>
-          <div class="scanner-result" id="scannerResult" hidden><strong>Image ready for review</strong><p>Your photo will be analyzed for educational screening only.</p></div>
-          <div class="upload-foot">Your photo is not uploaded to a server by this demo.</div>
+          <div class="scanner-result" id="scannerResult" hidden><strong id="diseaseName">⏳ Checking...</strong><p id="confidence"></p><div id="details"></div></div>
+<div class="upload-foot">Your photo is sent to Hugging Face AI for educational screening.</div>
+<button onclick="checkDisease()" style="width:100%;padding:15px;border:0;border-radius:12px;background:#0ea47a;color:#fff;font-weight:700;font-size:16px;margin-top:12px;cursor:pointer">🔍 Check Disease with AI</button>
         </div>
       </div>
       <div class="scanner-art">
@@ -165,6 +166,6 @@
     <div class="modal-backdrop" data-close-modal></div>
     <div class="modal-card"><button class="modal-close" data-close-modal aria-label="Close">×</button><span class="eyebrow" id="modalCategory"></span><h2 id="modalTitle"></h2><p id="modalDescription"></p><div class="modal-detail"><strong>Common symptoms</strong><p id="modalSymptoms"></p></div><div class="modal-detail"><strong>How it spreads</strong><p id="modalSpread"></p></div><div class="modal-detail"><strong>Prevention</strong><p id="modalPrevention"></p></div><small class="medical-note">This information is educational and does not replace advice from a healthcare professional.</small></div>
   </div>
-  <script src="script.js"></script>
+  <script src="script.js"></script> 
 </body>
 </html>
