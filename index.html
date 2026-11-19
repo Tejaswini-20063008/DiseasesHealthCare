@@ -186,7 +186,7 @@ async function checkDisease(){
   document.getElementById('confidence').innerText = "";
   document.getElementById('details').innerHTML = "";
   try{
-    let res = await fetch("https://api-inference.huggingface.co/models/Siraja704/DermaAI",{method:"POST",headers:{"Authorization":"Bearer "+HF_TOKEN},body:file});
+    let res = await fetch("https://router.huggingface.co/hf-inference/models/Siraja704/DermaAI",{method:"POST",headers:{"Authorization":"Bearer "+HF_TOKEN},body:file});
     let data = await res.json();
     console.log(data);
     if(data.error) throw new Error(data.error);
