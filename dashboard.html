@@ -17,11 +17,7 @@
   <br>
   <button onclick="checkDisease()">Check Disease</button>
   <div id="result"></div>
-
 <script>
-  // IKKADA NEE TOKEN PETTU
-  const HF_TOKEN = "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";
-
   async function checkDisease() {
     const input = document.getElementById('imageInput');
     const file = input.files[0];
@@ -42,7 +38,6 @@
       {
         method: "POST",
         headers: {
-          "Authorization": "Bearer " + HF_TOKEN,
           "Content-Type": "application/octet-stream"
         },
         body: file
