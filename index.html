@@ -167,5 +167,46 @@
     <div class="modal-card"><button class="modal-close" data-close-modal aria-label="Close">×</button><span class="eyebrow" id="modalCategory"></span><h2 id="modalTitle"></h2><p id="modalDescription"></p><div class="modal-detail"><strong>Common symptoms</strong><p id="modalSymptoms"></p></div><div class="modal-detail"><strong>How it spreads</strong><p id="modalSpread"></p></div><div class="modal-detail"><strong>Prevention</strong><p id="modalPrevention"></p></div><small class="medical-note">This information is educational and does not replace advice from a healthcare professional.</small></div>
   </div>
   <script src="script.js"></script> 
+  <script>
+const HF_TOKEN = "hf_nee_token_ikkada"; // dashboard.html lo unna ade token ikkada pettu
+
+const DATA = {
+"Ringworm":{title:"Ringworm (Thamarlu)",what:"Fungus valla vache infection. Ring shape lo red patch vasthadhi.",symptoms:["Round red patch, chuttu red ga","Chala itching / durada","Dry, scaly skin"],spreads:["Direct skin contact tho","Towels, clothes share cheste","Pets nunchi"],prevention:["Skin dry ga unchu","Towels share cheyyaku","Sweaty clothes marchu"],cure:["Doctor cheppina Antifungal cream 2-4 weeks","Full course aapeyyaku","Clothes hot water lo wash cheyyi"]},
+"Acne":{title:"Acne (Mokalu)",what:"Pores lo oil + bacteria valla vache problem.",symptoms:["Whiteheads, Blackheads","Red pimples, pus"],spreads:["Contagious KADU"],prevention:["Roju 2 sarlu face wash","Face touch cheyyaku"],cure:["Doctor gel vadali","Pimples pinch cheyyaku"]},
+"Eczema":{title:"Eczema",what:"Skin dry ayi, itchy ayye problem.",symptoms:["Dry, rough skin","Red patches, night lo itching"],spreads:["Vere vallaki SPREAD AVVADU"],prevention:["Roju moisturizer raayi","Harsh soap vaddu"],cure:["Doctor cheppina moisturizer + cream","Trigger avoid cheyyali"]},
+"Psoriasis":{title:"Psoriasis",what:"Immune system valla skin cells fast ga perige problem.",symptoms:["Thick red patches, white scales","Itching, burning"],spreads:["Vere vallaki SPREAD AVVADU"],prevention:["Skin moisturize cheyyi","Stress thagginchu"],cure:["Doctor cream / treatment","Regular follow-up"]}
+};
+function getHTML(n){let d=DATA[n];return `<h4>🦠 What is it?</h4><p>${d.what}</p><h4>🤒 Symptoms</h4><ul>${d.symptoms.map(s=>`<li>${s}</li>`).join('')}</ul><h4>↔️ How it Spreads</h4><ul>${d.spreads.map(s=>`<li>${s}</li>`).join('')}</ul><h4>🛡️ Prevention</h4><ul>${d.prevention.map(s=>`<li>${s}</li>`).join('')}</ul><h4>💊 Cure / Care</h4><ul>${d.cure.map(s=>`<li>${s}</li>`).join('')}</ul>`}
+
+async function checkDisease(){
+  let file = document.getElementById('skinImage').files[0];
+  if(!file) return alert("Photo select cheyyi!");
+  if(HF_TOKEN==="hf_nee_token_ikkada") return alert("Token pettaleedu! dashboard.html lo unna token ikkada paste cheyyi");
+  let box = document.getElementById('scannerResult');
+  box.hidden = false;
+  document.getElementById('diseaseName').innerText = "⏳ Checking with AI...";
+  document.getElementById('confidence').innerText = "";
+  document.getElementById('details').innerHTML = "";
+  try{
+    let res = await fetch("https://api-inference.huggingface.co/models/Siraja704/DermaAI",{method:"POST",headers:{"Authorization":"Bearer "+HF_TOKEN},body:file});
+    let data = await res.json();
+    console.log(data);
+    if(data.error) throw new Error(data.error);
+    let top = data.reduce((a,b)=>a.score>b.score?a:b);
+    let l = top.label.toLowerCase();
+    let disease = l.includes("ring")||l.includes("tinea")||l.includes("label_0")?"Ringworm":l.includes("acne")||l.includes("label_1")?"Acne":l.includes("eczema")||l.includes("label_2")?"Eczema":l.includes("psoriasis")||l.includes("label_3")?"Psoriasis":top.label;
+    let conf = Math.round(top.score*100);
+    if(DATA[disease]){
+      document.getElementById('diseaseName').innerText = "Possible: "+DATA[disease].title+" - "+conf+"%";
+      document.getElementById('confidence').innerText = "Confidence: "+conf+"% | Raw: "+top.label;
+      document.getElementById('details').innerHTML = getHTML(disease);
+    } else {
+      document.getElementById('diseaseName').innerText = "Possible: "+top.label+" - "+conf+"%";
+      document.getElementById('confidence').innerText = "Confidence: "+conf+"% | AI detected: "+top.label;
+      document.getElementById('details').innerHTML = `<h4>🦠 What is it?</h4><p>AI detected <b>${top.label}</b> ga.</p><h4>🛡️ General Care</h4><ul><li>Area ni clean ga, dry ga unchu</li><li>Scratch / pinch cheyyaku</li><li>Doctor ni adigi cream vadali</li></ul><h4>⚠️ Next Step</h4><p>Confirm kosam dermatologist ni kalavandi. Idi screening matrame.</p>`;
+    }
+  }catch(e){ document.getElementById('diseaseName').innerText = "Error: "+e.message+" - 30 sec aagi malli try cheyyi"; }
+}
+</script>
 </body>
 </html>
