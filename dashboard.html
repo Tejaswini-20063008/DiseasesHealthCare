@@ -22,7 +22,7 @@
     const input = document.getElementById('imageInput');
     const file = input.files[0];
     if (!file) {
-      alert("Mundu oka photo select cheyyi");
+      alert("First select a photo");
       return;
     }
 
@@ -32,20 +32,22 @@
     const preview = document.getElementById('preview');
     preview.src = URL.createObjectURL(file);
     preview.style.display = "block";
+// REAL AI - Gemini Backend Connect
+let formData = new FormData();
+formData.append("image", file);
 
-    const response = await fetch(
-      "https://router.huggingface.co/hf-inference/models/Siraja704/DermaAI",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/octet-stream"
-        },
-        body: file
-      }
-    );
-    const result = await response.json();
-    console.log(result);
-    document.getElementById('result').innerText = "Disease: " + result[0].label;
+const response = await fetch("https://diseases-health-care.vercel.app/analyze", {
+  method: "POST",
+  body: formData
+});
+const result = await response.json();
+console.log(result);
+
+if(result.error){
+  document.getElementById('result').innerText = "Error: " + result.error;
+} else {
+  document.getElementById('result').innerText = "Disease: " + result.disease + " | Confidence: " + result.confidence + "%\nReason: " + result.reason + "\nCause: " + result.cause + "\nPrevention: " + result.prevention + "\nTreatment: " + result.treatment;
+}
   }
 </script>
 </body>
