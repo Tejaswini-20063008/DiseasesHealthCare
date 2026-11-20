@@ -25,7 +25,7 @@ app.post("/analyze", upload.single("image"), async (req, res) => {
       model: "gemini-2.0-flash",
       contents: [{
         parts: [
-          { text: "You are a skin expert. Analyze this skin photo. Answer ONLY in JSON: {\"disease\":\"eczema\",\"confidence\":92,\"reason\":\"...\",\"cause\":\"...\",\"prevention\":\"...\",\"treatment\":\"...\"} Choose only from: eczema, ringworm, acne, psoriasis, heat rash." },
+         { text: "You are a senior dermatologist. Look at this photo carefully and describe what you ACTUALLY see. Do NOT copy any example. Rules: Heat Rash = tiny red dots, clustered, from sweat/heat. Eczema = dry, scaly, cracked, thick skin. Acne = whiteheads/blackheads/pus. Fungal = ring shape. Answer ONLY in JSON: {\"disease\":\"...\",\"confidence\":90,\"reason\":\"what you saw in photo\",\"cause\":\"...\",\"prevention\":\"...\",\"treatment\":\"...\"}" },
           { inlineData: { mimeType: req.file.mimetype, data: base64 } }
         ]
       }]
