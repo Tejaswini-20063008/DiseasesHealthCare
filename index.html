@@ -190,7 +190,7 @@ let base64Image = await new Promise((resolve) => {
   reader.readAsDataURL(file);
 });
 
-let res = await fetch("/api/predict", {
+let res = await fetch("/api/analyze", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({ image: base64Image })
