@@ -181,40 +181,46 @@ async function checkDisease(){
   document.getElementById('confidence').innerText = "";
   document.getElementById('details').innerHTML = "";
   try{
-   // Photo ni base64 ga marchadam - backend ki idhe kavali
-let base64Image = await new Promise((resolve) => {
-  let reader = new FileReader();
-  reader.onload = () => resolve(reader.result);
-  reader.readAsDataURL(file);
-});
+    let base64Image = await new Promise((resolve) => {
+      let reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.readAsDataURL(file);
+    });
 
-let res = await fetch("/api/analyze", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ image: base64Image })
-});
-let data = await res.json();
-console.log(data);
+    let res = await fetch("/api/analyze", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ image: base64Image })
+    });
+    let data = await res.json();
+    console.log(data);
+    if(data.error) throw new Error(data.error);
 
-if(data.error) throw new Error(data.error);
+    let disease = data.disease || "Unknown";
+    let conf = Math.round((data.confidence || 0.75) * 100);
 
-let disease = data.disease || data.label || data.prediction || "Unknown";
-let conf = Math.round((data.confidence || data.score || 0.85) * 100);
-let top = { label: disease, score: conf / 100 };
-    if(DATA[disease]){
-      document.getElementById('diseaseName').innerText = "Possible: "+DATA[disease].title+" - "+conf+"%";
-      document.getElementById('confidence').innerText = "Confidence: "+conf+"% | Raw: "+top.label;
+    document.getElementById('diseaseName').innerText = "Possible: " + disease + " - " + conf + "%";
+    document.getElementById('confidence').innerText = "Confidence: " + conf + "% | AI detected: " + disease;
+
+    // Gemini nunchi vachina details unte vatine chupinchu, lekapothe mana DATA nunchi chupinchu
+    if(data.what){
+      document.getElementById('details').innerHTML = `
+        <h4>🦠 What is it?</h4><p>${data.what}</p>
+        <h4>🤒 Symptoms</h4><ul>${(data.symptoms||[]).map(s=>`<li>${s}</li>`).join('')}</ul>
+        <h4>↔️ How it Spreads</h4><ul>${(data.spreads||[]).map(s=>`<li>${s}</li>`).join('')}</ul>
+        <h4>🛡️ Prevention</h4><ul>${(data.prevention||[]).map(s=>`<li>${s}</li>`).join('')}</ul>
+        <h4>💊 Cure / Care</h4><ul>${(data.cure||[]).map(s=>`<li>${s}</li>`).join('')}</ul>
+        <p style="font-size:12px;color:#888">⚠️ Educational screening only. Confirm kosam dermatologist ni kalavandi.</p>`;
+    } else if(DATA[disease]){
       document.getElementById('details').innerHTML = getHTML(disease);
     } else {
-      document.getElementById('diseaseName').innerText = "Possible: "+top.label+" - "+conf+"%";
-      document.getElementById('confidence').innerText = "Confidence: "+conf+"% | AI detected: "+top.label;
-      document.getElementById('details').innerHTML = `<h4>🦠 What is it?</h4><p>AI detected <b>${top.label}</b> ga.</p><h4>🛡️ General Care</h4><ul><li>Area ni clean ga, dry ga unchu</li><li>Scratch / pinch cheyyaku</li><li>Doctor ni adigi cream vadali</li></ul><h4>⚠️ Next Step</h4><p>Confirm kosam dermatologist ni kalavandi. Idi screening matrame.</p>`;
+      document.getElementById('details').innerHTML = `<p>AI detected <b>${disease}</b> ga. Confirm kosam dermatologist ni kalavandi.</p>`;
     }
- } catch(e){
-  document.getElementById('diseaseName').innerText = "Possible:"+DATA[disease];
-  document.getElementById('confidence').innerText = "Error: " + e.message;
-  document.getElementById('details').innerHTML = "<p>Backend lo problem undhi. Vercel lo HF_TOKEN check cheyyi.</p>";
-}
+  } catch(e){
+    document.getElementById('diseaseName').innerText = "❌ Failed";
+    document.getElementById('confidence').innerText = "Error: " + e.message;
+    document.getElementById('details').innerHTML = "<p>Vercel lo GEMINI_API_KEY check cheyyi. Key lekapothe / thappu ayithe idi vasthundhi.</p>";
+  }
 }
 </script>
 </body>
