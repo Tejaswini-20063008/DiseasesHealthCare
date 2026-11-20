@@ -1,114 +1,42 @@
 import express from "express";
-import multer from "multer";
 import cors from "cors";
-import helmet from "helmet";
-import rateLimit from "express-rate-limit";
+import multer from "multer";
+import dotenv from "dotenv";
 import { GoogleGenAI } from "@google/genai";
 
+dotenv.config();
+
 const app = express();
-const PORT = process.env.PORT || 3000;
+app.use(cors());
+app.use(express.json());
 
-const API_KEY = process.env.GEMINI_API_KEY;
-const MODEL = process.env.GEMINI_MODEL;
-
-const WEBSITE_ORIGIN =
-  "https://tejaswini-20063008.github.io";
-
-if (!API_KEY || !MODEL) {
-  console.error("Missing Gemini environment variables.");
-  process.exit(1);
-}
-
-const ai = new GoogleGenAI({ apiKey: API_KEY });
-
-app.use(helmet());
-
-app.use(cors({
-  origin: WEBSITE_ORIGIN
-}));
-
-app.use(rateLimit({
-  windowMs: 60 * 1000,
-  limit: 10
-}));
-
-const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: { fileSize: 5 * 1024 * 1024 },
-  fileFilter: (req, file, cb) => {
-    const allowed = [
-      "image/jpeg",
-      "image/png",
-      "image/webp"
-    ];
-    cb(null, allowed.includes(file.mimetype));
-  }
-});
+const upload = multer({ limits: { fileSize: 5 * 1024 * 1024 } });
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 app.get("/", (req, res) => {
-  res.json({ status: "HygieneCare backend running" });
+  res.send("HygieneCare Backend Running!");
 });
 
-app.post("/api/scan", upload.single("image"), async (req, res) => {
+app.post("/analyze", upload.single("image"), async (req, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({
-        error: "Please upload a JPG, PNG or WEBP image."
-      });
-    }
-
-    const prompt = `
-You are providing educational skin-health information,
-not a medical diagnosis.
-
-Examine the supplied skin image cautiously.
-
-Do not claim to diagnose ringworm, acne, eczema,
-psoriasis, dermatitis or any fungal infection.
-
-Explain:
-1. What visible features can and cannot be observed.
-2. Why an image alone cannot establish the cause.
-3. General, gentle skin-care precautions.
-4. When to seek advice from a qualified healthcare professional.
-
-If the image is unclear or unsuitable, say:
-"Unable to assess this image."
-
-Do not invent certainty, probabilities, or accuracy scores.
-Do not prescribe medication.
-`;
-
+    if (!req.file) return res.json({ error: "No image" });
+    const base64 = req.file.buffer.toString("base64");
     const result = await ai.models.generateContent({
-      model: MODEL,
-      contents: [
-        {
-          inlineData: {
-            mimeType: req.file.mimetype,
-            data: req.file.buffer.toString("base64")
-          }
-        },
-        { text: prompt }
-      ]
+      model: "gemini-2.0-flash",
+      contents: [{
+        parts: [
+          { text: "You are a skin expert. Analyze this skin photo. Answer ONLY in JSON: {\"disease\":\"eczema\",\"confidence\":92,\"reason\":\"...\",\"cause\":\"...\",\"prevention\":\"...\",\"treatment\":\"...\"} Choose only from: eczema, ringworm, acne, psoriasis, heat rash." },
+          { inlineData: { mimeType: req.file.mimetype, data: base64 } }
+        ]
+      }]
     });
-
-    res.json({
-      mode: "AI educational assistance",
-      result: result.text || "Unable to assess this image."
-    });
-
-  } catch (error) {
-    console.error("Scan request failed:", error.message);
-
-    res.status(500).json({
-      error: "Image analysis is temporarily unavailable."
-    });
+    const text = result.text.replace(/```json|```/g, "").trim();
+    res.json(JSON.parse(text));
+  } catch (e) {
+    console.log(e);
+    res.json({ error: "Image analysis is temporarily unavailable" });
   }
 });
-if (require.main === module) {
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`HygieneCare server running on port ${PORT}`);
-  });
-}
 
-module.exports = app;
+// Vercel kosam - Listen VADDU! Export CHALU!
+export default app;
