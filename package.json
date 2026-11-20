@@ -1,0 +1,16 @@
+{
+  "name": "hygienecare-backend",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@google/genai": "^3.0.0",
+    "express": "^5.0.0",
+    "multer": "^2.0.0"
+  }
+}
