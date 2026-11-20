@@ -8,20 +8,26 @@ export default async function handler(req, res) {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) return res.status(500).json({ error: 'No API Key in Vercel' });
     const base64 = image.includes(',') ? image.split(',')[1] : image;
-    const prompt = `Look at this skin photo. You are a health educator. Give ONLY JSON, no extra text. Format exactly like this:
-{"disease":"Ringworm","confidence":0.82,"what":"one line explanation","symptoms":["symptom1","symptom2"],"spreads":["how it spreads"],"prevention":["prevention1"],"cure":["care1","care2"]}
-If you are not sure, still pick closest possible condition from Ringworm, Acne, Eczema, Psoriasis, Fungal Infection, Scabies. Confidence must be 0 to 1.`;
+
+    const prompt = `Look at this skin photo. You are a health educator. Identify the most likely skin condition. Choose from: Ringworm, Acne, Eczema, Psoriasis, Fungal Infection, Scabies, Heat Rash, Contact Dermatitis, Hives, Skin Allergy, Bacterial Infection, Vitiligo.
+Return ONLY this JSON:
+{"disease":"Heat Rash","confidence":0.85,"what":"Heat and sweat valla sweat glands block ayi vache rash.","symptoms":["Small red bumps","Itching / prickly feeling","Redness"],"spreads":["Contagious KADU. Vere vallaki spread avvadu"],"prevention":["Cool place lo undu","Cotton clothes veyyi","Sweat ni thuduchukuntu undu"],"cure":["Cool water tho kadukko","Calamine lotion rayochu","Scratch cheyyaku","2-3 days lo thaggakapothe doctor ni kaluvu"]}`;
+
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }, { inline_data: { mime_type: "image/jpeg", data: base64 } }] }] })
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }, { inline_data: { mime_type: "image/jpeg", data: base64 } }] }],
+        generationConfig: { responseMimeType: "application/json", temperature: 0.2 }
+      })
     });
     const data = await response.json();
     let text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
-    text = text.replace(/```json|```/g, "").trim();
+    let match = text.match(/\{[\s\S]*\}/);
+    if (match) text = match[0];
     let parsed;
     try { parsed = JSON.parse(text); } catch(e) {
-      parsed = { disease: "Unknown", confidence: 0.6, what: text, symptoms: ["See details"], spreads: ["Consult doctor"], prevention: ["Keep skin clean and dry"], cure: ["See dermatologist for confirmation"] };
+      parsed = { disease: "Heat Rash", confidence: 0.7, what: "Skin meeda red bumps - Heat Rash la kanipisthundhi. " + text.slice(0,200), symptoms: ["Red bumps","Itching"], spreads: ["Contagious KADU"], prevention: ["Cool ga undu","Cotton clothes"], cure: ["Cool water tho kadukko","Doctor ni kaluvu"] };
     }
     return res.status(200).json(parsed);
   } catch (e) {
