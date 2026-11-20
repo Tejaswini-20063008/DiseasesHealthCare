@@ -183,10 +183,18 @@ async function checkDisease(){
   document.getElementById('confidence').innerText = "";
   document.getElementById('details').innerHTML = "";
   try{
-   let formData = new FormData();
-formData.append("image", file);
+   // Photo ni base64 ga marchadam - backend ki idhe kavali
+let base64Image = await new Promise((resolve) => {
+  let reader = new FileReader();
+  reader.onload = () => resolve(reader.result);
+  reader.readAsDataURL(file);
+});
 
-let res = await fetch("https://diseases-health-care.vercel.app/api/analyze", {method:"POST", body: formData});
+let res = await fetch("/api/predict", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ image: base64Image })
+});
 let data = await res.json();
 console.log(data);
 
