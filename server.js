@@ -105,7 +105,10 @@ Do not prescribe medication.
     });
   }
 });
+if (require.main === module) {
+  app.listen(PORT, "0.0.0.0", () => {
+    console.log(`HygieneCare server running on port ${PORT}`);
+  });
+}
 
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`HygieneCare server running on port ${PORT}`);
-});
+module.exports = app;
