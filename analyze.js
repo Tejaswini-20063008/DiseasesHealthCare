@@ -11,7 +11,7 @@ export default async function handler(req, res) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: [{ parts: [
-          { text: "You are a skin disease screening assistant for education only. Look at this skin photo. Return ONLY JSON like {\"disease\":\"Acne\",\"confidence\":85,\"what\":\"...\",\"causes\":\"...\",\"precautions\":\"...\",\"preventions\":\"...\"}. Diseases allowed: Acne, Eczema, Ringworm, Heat Rash, Psoriasis, Fungal Infection. Advise to see doctor." },
+          { text: "You are a skin disease screening assistant for education only. Look at this skin photo. Identify ANY skin disease you see, do not limit to a list. Return ONLY JSON like {\"disease\":\"Acne\",\"confidence\":85,\"what\":\"...\",\"causes\":\"...\",\"precautions\":\"...\",\"preventions\":\"...\"}. Advise to see doctor." },
           { inline_data: { mime_type: "image/jpeg", data: base64 } }
         ]}]
       })
