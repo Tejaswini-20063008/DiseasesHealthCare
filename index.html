@@ -185,12 +185,22 @@ async function checkDisease(){
       reader.readAsDataURL(file);
     });
 
-    let res = await fetch("/api/analyze", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ image: base64Image })
-    });
-    let data = await res.json();
+    // GitHub Pages kosam - Direct Gemini - No /api
+const API_KEY = "AQ.Ab8RN6KXW6_mUlbfv-vUVyun5AWF7Yh0C_NdSsP22JN-7_iAbg";
+const base64Only = base64Image.includes(',') ? base64Image.split(',')[1] : base64Image;
+let res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: "Look at this skin photo and tell what skin disease it is. You decide yourself based on what you see. Return ONLY this JSON: {\"disease\":\"\",\"confidence\":0,\"what\":\"\",\"symptoms\":[],\"spreads\":[],\"prevention\":[],\"cure\":[]} Fill in simple Telugu-English." }, { inline_data: { mime_type: "image/jpeg", data: base64Only } }] }],
+      generationConfig: { responseMimeType: "application/json", temperature: 0.2 }
+    })
+});
+let raw = await res.json();
+let text = raw?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+let m = text.match(/\{[\s\S]*\}/);
+if (m) text = m[0];
+let data = JSON.parse(text);
     console.log(data);
     if(data.error) throw new Error(data.error);
 
