@@ -182,9 +182,8 @@ async function checkDisease(){
       reader.onload = () => resolve(reader.result);
       reader.readAsDataURL(file);
     });
-
     // GitHub Pages kosam - Direct Gemini - No /api
-const API_KEY = "AQ.Ab8RN6KXW6_mUlbfv-vUVyun5AWF7Yh0C_NdSsP22JN-7_iAbg";
+const API_KEY = "AQ.Ab8RN6KCQs4CEkiY7Uw1E2bV_vFRw_BYOm37U9kIsGZlud0ycA";
 const base64Only = base64Image.includes(',') ? base64Image.split(',')[1] : base64Image;
 let res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`, {
     method: "POST",
