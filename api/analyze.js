@@ -8,11 +8,9 @@ export default async function handler(req, res) {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) return res.status(500).json({ error: 'No API Key in Vercel' });
     const base64 = image.includes(',') ? image.split(',')[1] : image;
-
     const prompt = `Look at this skin photo. You are a health educator. Give ONLY JSON, no extra text. Format exactly like this:
 {"disease":"Ringworm","confidence":0.82,"what":"one line explanation","symptoms":["symptom1","symptom2"],"spreads":["how it spreads"],"prevention":["prevention1"],"cure":["care1","care2"]}
 If you are not sure, still pick closest possible condition from Ringworm, Acne, Eczema, Psoriasis, Fungal Infection, Scabies. Confidence must be 0 to 1.`;
-
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
