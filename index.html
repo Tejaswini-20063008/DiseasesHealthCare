@@ -205,7 +205,7 @@ let top = { label: disease, score: conf / 100 };
       document.getElementById('details').innerHTML = `<h4>🦠 What is it?</h4><p>AI detected <b>${top.label}</b> ga.</p><h4>🛡️ General Care</h4><ul><li>Area ni clean ga, dry ga unchu</li><li>Scratch / pinch cheyyaku</li><li>Doctor ni adigi cream vadali</li></ul><h4>⚠️ Next Step</h4><p>Confirm kosam dermatologist ni kalavandi. Idi screening matrame.</p>`;
     }
  } catch(e){
-  document.getElementById('diseaseName').innerText = "AI Failed - Try Again";
+  document.getElementById('diseaseName').innerText = "Possible:"+DATA[disease];
   document.getElementById('confidence').innerText = "Error: " + e.message;
   document.getElementById('details').innerHTML = "<p>Backend lo problem undhi. Vercel lo HF_TOKEN check cheyyi.</p>";
 }
