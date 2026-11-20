@@ -204,14 +204,10 @@ let top = { label: disease, score: conf / 100 };
       document.getElementById('confidence').innerText = "Confidence: "+conf+"% | AI detected: "+top.label;
       document.getElementById('details').innerHTML = `<h4>🦠 What is it?</h4><p>AI detected <b>${top.label}</b> ga.</p><h4>🛡️ General Care</h4><ul><li>Area ni clean ga, dry ga unchu</li><li>Scratch / pinch cheyyaku</li><li>Doctor ni adigi cream vadali</li></ul><h4>⚠️ Next Step</h4><p>Confirm kosam dermatologist ni kalavandi. Idi screening matrame.</p>`;
     }
-  } catch(e){
-  // Demo Mode - Ye photo petina ye disease ayina ravochu
-  let all = Object.keys(DATA);
-  let demo = all[Math.floor(Math.random() * all.length)];
-  let conf = 82 + Math.floor(Math.random() * 12); // 82% - 94%
-  document.getElementById('diseaseName').innerText = "Possible: " + demo;
-  document.getElementById('confidence').innerText = "Confidence: " + conf + "%";
-  document.getElementById('details').innerHTML = getHTML(demo);
+ } catch(e){
+  document.getElementById('diseaseName').innerText = "AI Failed - Try Again";
+  document.getElementById('confidence').innerText = "Error: " + e.message;
+  document.getElementById('details').innerHTML = "<p>Backend lo problem undhi. Vercel lo HF_TOKEN check cheyyi.</p>";
 }
 }
 </script>
