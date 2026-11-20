@@ -9,9 +9,11 @@ export default async function handler(req, res) {
     if (!apiKey) return res.status(500).json({ error: 'No API Key in Vercel' });
     const base64 = image.includes(',') ? image.split(',')[1] : image;
 
-    const prompt = `Look at this skin photo. You are a health educator. Identify the most likely skin condition. Choose from: Ringworm, Acne, Eczema, Psoriasis, Fungal Infection, Scabies, Heat Rash, Contact Dermatitis, Hives, Skin Allergy, Bacterial Infection, Vitiligo.
+    const prompt = `Look at this skin photo and tell what skin disease it is. You decide yourself based on what you see in the photo. Do not guess. Be accurate.
+
 Return ONLY this JSON:
-{"disease":"Heat Rash","confidence":0.85,"what":"Heat and sweat valla sweat glands block ayi vache rash.","symptoms":["Small red bumps","Itching / prickly feeling","Redness"],"spreads":["Contagious KADU. Vere vallaki spread avvadu"],"prevention":["Cool place lo undu","Cotton clothes veyyi","Sweat ni thuduchukuntu undu"],"cure":["Cool water tho kadukko","Calamine lotion rayochu","Scratch cheyyaku","2-3 days lo thaggakapothe doctor ni kaluvu"]}`;
+{"disease":"","confidence":0,"what":"","symptoms":[],"spreads":[],"prevention":[],"cure":[]}
+Fill all fields in simple Telugu-English. In "what" explain what it is. In "cure" last point always add "doctor ni kaluvu".`;
 
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
       method: 'POST',
@@ -25,10 +27,7 @@ Return ONLY this JSON:
     let text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
     let match = text.match(/\{[\s\S]*\}/);
     if (match) text = match[0];
-    let parsed;
-    try { parsed = JSON.parse(text); } catch(e) {
-      parsed = { disease: "Heat Rash", confidence: 0.7, what: "Skin meeda red bumps - Heat Rash la kanipisthundhi. " + text.slice(0,200), symptoms: ["Red bumps","Itching"], spreads: ["Contagious KADU"], prevention: ["Cool ga undu","Cotton clothes"], cure: ["Cool water tho kadukko","Doctor ni kaluvu"] };
-    }
+    let parsed = JSON.parse(text);
     return res.status(200).json(parsed);
   } catch (e) {
     return res.status(500).json({ error: 'AI failed: ' + e.message });
