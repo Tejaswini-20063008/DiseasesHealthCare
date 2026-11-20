@@ -183,14 +183,18 @@ async function checkDisease(){
   document.getElementById('confidence').innerText = "";
   document.getElementById('details').innerHTML = "";
   try{
-    let res = await fetch("https://router.huggingface.co/hf-inference/models/Siraja704/DermaAI",{method:"POST",body:file});
-    let data = await res.json();
-    console.log(data);
-    if(data.error) throw new Error(data.error);
-    let top = data.reduce((a,b)=>a.score>b.score?a:b);
-    let l = top.label.toLowerCase();
-    let disease = l.includes("ring")||l.includes("tinea")||l.includes("label_0")?"Ringworm":l.includes("acne")||l.includes("label_1")?"Acne":l.includes("eczema")||l.includes("label_2")?"Eczema":l.includes("psoriasis")||l.includes("label_3")?"Psoriasis":top.label;
-    let conf = Math.round(top.score*100);
+   let formData = new FormData();
+formData.append("image", file);
+
+let res = await fetch("https://diseases-health-care.vercel.app/api/analyze", {method:"POST", body: formData});
+let data = await res.json();
+console.log(data);
+
+if(data.error) throw new Error(data.error);
+
+let disease = data.disease || data.label || data.prediction || "Unknown";
+let conf = Math.round((data.confidence || data.score || 0.85) * 100);
+let top = { label: disease, score: conf / 100 };
     if(DATA[disease]){
       document.getElementById('diseaseName').innerText = "Possible: "+DATA[disease].title+" - "+conf+"%";
       document.getElementById('confidence').innerText = "Confidence: "+conf+"% | Raw: "+top.label;
