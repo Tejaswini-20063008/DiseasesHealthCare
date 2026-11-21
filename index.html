@@ -150,73 +150,70 @@
   </div>
   <script src="script.js"></script> 
   <script>
-const DATA = {
-"Ringworm":{title:"Ringworm (Thamarlu)",what:"Fungus valla vache infection. Ring shape lo red patch vasthadhi.",symptoms:["Round red patch, chuttu red ga","Chala itching / durada","Dry, scaly skin"],spreads:["Direct skin contact tho","Towels, clothes share cheste","Pets nunchi"],prevention:["Skin dry ga unchu","Towels share cheyyaku","Sweaty clothes marchu"],cure:["Doctor cheppina Antifungal cream 2-4 weeks","Full course aapeyyaku","Clothes hot water lo wash cheyyi"]},
-"Acne":{title:"Acne (Mokalu)",what:"Pores lo oil + bacteria valla vache problem.",symptoms:["Whiteheads, Blackheads","Red pimples, pus"],spreads:["Contagious KADU"],prevention:["Roju 2 sarlu face wash","Face touch cheyyaku"],cure:["Doctor gel vadali","Pimples pinch cheyyaku"]},
-"Eczema":{title:"Eczema",what:"Skin dry ayi, itchy ayye problem.",symptoms:["Dry, rough skin","Red patches, night lo itching"],spreads:["Vere vallaki SPREAD AVVADU"],prevention:["Roju moisturizer raayi","Harsh soap vaddu"],cure:["Doctor cheppina moisturizer + cream","Trigger avoid cheyyali"]},
-"Psoriasis":{title:"Psoriasis",what:"Immune system valla skin cells fast ga perige problem.",symptoms:["Thick red patches, white scales","Itching, burning"],spreads:["Vere vallaki SPREAD AVVADU"],prevention:["Skin moisturize cheyyi","Stress thagginchu"],cure:["Doctor cream / treatment","Regular follow-up"]}
-};
+async function checkDisease() {
+  const fileInput = document.getElementById('skinImage');
+  const file = fileInput.files[0];
+  if (!file) {
+    alert("Photo select cheyyi!");
+    return;
+  }
 
-function getHTML(n){
-  let d=DATA[n];
-  return `<h4>🦠 What is it?</h4><p>${d.what}</p><h4>🤒 Symptoms</h4><ul>${d.symptoms.map(s=>`<li>${s}</li>`).join('')}</ul><h4>↔️ How it Spreads</h4><ul>${d.spreads.map(s=>`<li>${s}</li>`).join('')}</ul><h4>🛡️ Prevention</h4><ul>${d.prevention.map(s=>`<li>${s}</li>`).join('')}</ul><h4>💊 Cure / Care</h4><ul>${d.cure.map(s=>`<li>${s}</li>`).join('')}</ul>`;
-}
-
-async function checkDisease(){
-  let fileInput = document.getElementById('skinImage');
-  let file = fileInput.files[0];
-  if(!file) return alert("Photo select cheyyi!");
-
-  let box = document.getElementById('scannerResult');
-  box.hidden = false;
-  document.getElementById('diseaseName').innerText = "⏳ Checking with AI...";
-  document.getElementById('confidence').innerText = "Scanning photo with Gemini...";
-  document.getElementById('details').innerHTML = "";
+  const box = document.getElementById('scannerResult');
+  box.style.display = 'block';
+  box.innerHTML = '<p>⏳ <strong>Checking with Gemini AI... Please wait...</strong></p>';
 
   try {
-    let base64Image = await new Promise((resolve) => {
-      let reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.readAsDataURL(file);
-    });
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = async function() {
+      const base64Data = reader.result;
 
-    const endpoint = window.location.hostname.includes("vercel.app")
-      ? "/api/analyze"
-      : "https://diseases-health-care.vercel.app/api/analyze";
+      const response = await fetch("https://diseaseshealthcare-api.vercel.app/api/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image: base64Data })
+      });
 
-    let res = await fetch(endpoint, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ image: base64Image })
-    });
+      const data = await response.json();
 
-    let data = await res.json();
-    if (!res.ok || data.error) {
-      throw new Error(data.error || "AI Scan failed");
-    }
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || "Failed to scan disease.");
+      }
 
-    let disease = data.disease || "Unknown";
-    let conf = Math.round((data.confidence || 0.8) * 100);
-    document.getElementById('diseaseName').innerText = "Possible: " + disease + " (" + conf + "%)";
-    document.getElementById('confidence').innerText = "Confidence: " + conf + "% | AI detected: " + disease;
+      box.innerHTML = `
+        <div style="text-align: left; line-height: 1.6;">
+          <h3 style="color: #16866f; margin-bottom: 8px;">🩺 Detected: ${data.disease}</h3>
+          <p><strong>Confidence:</strong> ${data.confidence}</p>
+          <hr style="margin: 10px 0; border: 0; border-top: 1px solid #ddd;">
+          
+          <h4>📖 What is it?</h4>
+          <p>${data.what}</p>
 
-    if (data.what) {
-      document.getElementById('details').innerHTML = `
-        <h4>🦠 What is it?</h4><p>${data.what}</p>
-        <h4>🤒 Symptoms</h4><ul>${(data.symptoms||[]).map(s=>`<li>${s}</li>`).join('')}</ul>
-        <h4>↔️ How it Spreads</h4><ul>${(data.spreads||[]).map(s=>`<li>${s}</li>`).join('')}</ul>
-        <h4>🛡️ Prevention</h4><ul>${(data.prevention||[]).map(s=>`<li>${s}</li>`).join('')}</ul>
-        <h4>💊 Cure / Care</h4><ul>${(data.cure||[]).map(s=>`<li>${s}</li>`).join('')}</ul>
-        <p style="font-size:12px;color:#888;margin-top:10px">⚠️ Educational screening only. Confirm kosam doctor ni kalavandi.</p>`;
-    } else if (DATA[disease]) {
-      document.getElementById('details').innerHTML = getHTML(disease);
-    } else {
-      document.getElementById('details').innerHTML = `<p>AI detected <b>${disease}</b>. Confirm kosam doctor ni kalavandi.</p>`;
-    }
-  } catch(e) {
-    document.getElementById('diseaseName').innerText = "❌ Scan Failed";
-    document.getElementById('confidence').innerText = "Error: " + e.message;
-    document.getElementById('details').innerHTML = "<p>Vercel లో GEMINI_API_KEY సెట్ చేశారో లేదో ఒకసారి చెక్ చేయండి.</p>";
+          <h4>⚠️ Symptoms:</h4>
+          <ul>
+            ${(data.symptoms || []).map(s => `<li>${s}</li>`).join('')}
+          </ul>
+
+          <h4>🔄 How it spreads:</h4>
+          <p>${data.spreads}</p>
+
+          <h4>🛡️ Prevention:</h4>
+          <ul>
+            ${(data.prevention || []).map(p => `<li>${p}</li>`).join('')}
+          </ul>
+
+          <h4>💊 Care / Cure:</h4>
+          <p>${data.cure}</p>
+
+          <p style="font-size: 12px; color: #888; margin-top: 15px;">
+            ⚠️ <em>Note: AI-generated information is for educational purposes only. Please consult a doctor for medical guidance.</em>
+          </p>
+        </div>
+      `;
+    };
+  } catch (error) {
+    console.error(error);
+    box.innerHTML = `<p style="color: red;">❌ <strong>Error:</strong> ${error.message}</p>`;
   }
 }
 </script>
