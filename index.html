@@ -180,17 +180,33 @@ async function checkDisease(){
       reader.readAsDataURL(file);
     });
     // GitHub Pages kosam - Direct Gemini - No /api
-const API_KEY = "AQ.Ab8RN6KCQs4CEkiY7Uw1E2bV_vFRw_BYOm37U9kIsGZlud0ycA";
+const API_KEY = "AQ.Ab8RN6KBjKg3BBLsg8AVhUs5bLbCnK5ba9uU1GJjc8K6NMcCXA";
 const base64Only = base64Image.includes(',') ? base64Image.split(',')[1] : base64Image;
-let res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent`, {
+const API_KEY = "PASTE_YOUR_NEW_KEY_HERE";
+const base64Only = base64Image.includes(',') ? base64Image.split(',')[1] : base64Image;
+
+const prompt = `Look at this skin photo and identify the disease. Return ONLY valid JSON:
+{
+  "disease": "Disease Name",
+  "confidence": 0.90,
+  "what": "What it is",
+  "symptoms": ["Symptom 1", "Symptom 2"],
+  "spreads": ["How it spreads"],
+  "prevention": ["Prevention 1"],
+  "cure": ["Care/treatment 1", "Consult a doctor"]
+}`;
+
+let res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
     method: "POST",
-    headers: { 
-      "Content-Type": "application/json",
-      "x-goog-api-key": API_KEY
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       contents: [{ parts: [
-  { text: "Look at this skin photo and tell what skin disease it is. Return ONLY this JSON: {\"disease\": \"name\", \"confidence\": 90, \"advice\": \"...\"}" },
+        { text: prompt },
+        { inlineData: { mimeType: "image/jpeg", data: base64Only } }
+      ]}],
+      generationConfig: { responseMimeType: "application/json", temperature: 0.2 }
+    })
+});
   { inlineData: { mimeType: "image/jpeg", data: base64Only } }
 ]}],
 generationConfig: { responseMimeType: "application/json", temperature: 0.2 }
