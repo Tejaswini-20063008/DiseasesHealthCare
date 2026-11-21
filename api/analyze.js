@@ -10,7 +10,6 @@ export default async function handler(req, res) {
     const { image } = req.body || {};
     if (!image) return res.status(400).json({ error: "No image provided" });
 
-    // GEMINI_API_KEY లేదా GEMIINI_API_KEY రెండింటినీ ఇది సపోర్ట్ చేస్తుంది
     const apiKey = process.env.GEMINI_API_KEY || process.env.GEMIINI_API_KEY;
     if (!apiKey) {
       return res.status(500).json({ error: "API Key is not set in Vercel Environment Variables" });
@@ -38,31 +37,45 @@ Return ONLY valid JSON matching this exact structure:
 }
 Do not include markdown backticks or any other text outside the JSON.`;
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                { text: prompt },
-                { inlineData: { mimeType: mimeType, data: base64 } }
-              ]
-            }
-          ],
-          generationConfig: {
-            temperature: 0.2,
-            responseMimeType: "application/json"
-          }
-        })
-      }
-    );
+    // గూగుల్ లేటెస్ట్ మోడల్స్ లిస్ట్
+    const candidateModels = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash-latest"];
+    let data = null;
+    let lastError = null;
 
-    const data = await response.json();
-    if (data.error) {
-      return res.status(400).json({ error: data.error.message || "Gemini API error" });
+    for (const model of candidateModels) {
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [
+                  { text: prompt },
+                  { inlineData: { mimeType: mimeType, data: base64 } }
+                ]
+              }
+            ],
+            generationConfig: {
+              temperature: 0.2,
+              responseMimeType: "application/json"
+            }
+          })
+        }
+      );
+
+      const result = await response.json();
+      if (!result.error) {
+        data = result;
+        break;
+      } else {
+        lastError = result.error.message;
+      }
+    }
+
+    if (!data) {
+      return res.status(400).json({ error: lastError || "Gemini API error" });
     }
 
     let text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
