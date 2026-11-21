@@ -10,8 +10,11 @@ export default async function handler(req, res) {
     const { image } = req.body || {};
     if (!image) return res.status(400).json({ error: "No image provided" });
 
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) return res.status(500).json({ error: "GEMINI_API_KEY is not set in Vercel Environment Variables" });
+    // GEMINI_API_KEY లేదా GEMIINI_API_KEY రెండింటినీ ఇది సపోర్ట్ చేస్తుంది
+    const apiKey = process.env.GEMINI_API_KEY || process.env.GEMIINI_API_KEY;
+    if (!apiKey) {
+      return res.status(500).json({ error: "API Key is not set in Vercel Environment Variables" });
+    }
 
     let mimeType = "image/jpeg";
     let base64 = image;
@@ -26,12 +29,12 @@ export default async function handler(req, res) {
 Return ONLY valid JSON matching this exact structure:
 {
   "disease": "Disease Name",
-  "confidence": 0.85,
+  "confidence": "85%",
   "what": "Simple 1-2 sentence description of what this condition is.",
   "symptoms": ["Symptom 1", "Symptom 2", "Symptom 3"],
-  "spreads": ["How it spreads or triggers"],
+  "spreads": "How it spreads or triggers",
   "prevention": ["Prevention tip 1", "Prevention tip 2"],
-  "cure": ["Consult a doctor for proper diagnosis and prescription.", "Care step 1"]
+  "cure": "Consult a doctor for proper diagnosis and prescription."
 }
 Do not include markdown backticks or any other text outside the JSON.`;
 
