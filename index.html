@@ -41,9 +41,9 @@
           <div class="trust-row"><span>✓ WHO / CDC / NHS sourced</span><span>•</span><span>12 conditions explained</span></div>
         </div>
         <div class="hero-art">
-  <img src="hero-hygiene.jpg"
-       alt="Daily hygiene essentials">
-</div>
+          <img src="hero-hygiene.jpg" alt="Daily hygiene essentials">
+        </div>
+      </div>
     </section>
     <section class="impact section section-soft">
       <div class="container">
@@ -72,31 +72,29 @@
       <div class="container scanner-grid">
         <div class="scanner-copy"><span class="eyebrow">AI-ASSISTED SCREENING</span><h2>AI Skin Disease Scanner</h2><p>Upload or capture a photo of a skin concern and get an educational screening summary – possible condition, common symptoms, precautions and when to see a dermatologist.</p>
           <ul class="check-list"><li>Upload from gallery or use your camera</li><li>Preview your selected image in your browser</li><li>Know when to seek professional advice</li></ul>
-          <div class="notice"><strong>Important:</strong> This screening provides educational information only and does not diagnose scin conditions.</div>
+          <div class="notice"><strong>Important:</strong> This screening provides educational information only and does not diagnose skin conditions.</div>
         </div>
-        <div class="upload-card"> <div class="scanner-art">
-        <img src="scanner-illustration.jpg"
-          alt="Daily hygiene essentials">
-      </div>
+        <div class="upload-card">
+          <div class="scanner-art">
+            <img src="scanner-illustration.jpg" alt="Daily hygiene essentials">
+          </div>
           <div class="upload-top"><span class="upload-symbol">⌕</span><div><strong>Skin concern checker</strong><small>Educational screening - Your photo is processed securely</small></div><span class="safe-pill">Private preview</span></div>
           <label class="drop-zone" for="skinImage" id="dropZone"><span class="upload-cloud">↑</span><strong>Upload a skin photo</strong><span>Choose an image from your device</span><em>JPG, PNG or WEBP · Max 8 MB</em><span class="btn btn-primary upload-btn">Choose image</span></label>
           
           <input type="file" id="skinImage" accept="image/png,image/jpeg,image/webp" hidden>
           <div class="image-preview" id="imagePreview" hidden><img id="previewImg" alt="Selected skin image preview"><button class="text-button" id="removeImage" type="button">Remove image</button></div>
           <div class="scanner-result" id="scannerResult" hidden><strong id="diseaseName">⏳ Checking...</strong><p id="confidence"></p><div id="details"></div></div>
-<div class="upload-foot">Your photo is sent to Gemini AI for educational screening.</div>
-<button onclick="checkDisease()" style="width:100%;padding:15px;border:0;border-radius:12px;background:#0ea47a;color:#fff;font-weight:700;font-size:16px;margin-top:12px;cursor:pointer">🔍 Check Disease with AI</button>
+          <div class="upload-foot">Your photo is sent to Gemini AI for educational screening.</div>
+          <button onclick="checkDisease()" style="width:100%;padding:15px;border:0;border-radius:12px;background:#0ea47a;color:#fff;font-weight:700;font-size:16px;margin-top:12px;cursor:pointer">🔍 Check Disease with AI</button>
         </div>
       </div>
-      
     </section>
     <section class="section section-soft" id="prevention">
       <div class="container">
         <div class="section-heading centered"><span class="eyebrow">PREVENTION</span><h2>Four habits to start today</h2><p>Simple routines can make a meaningful difference to your health and the health of your community.</p></div>
         <div class="prevention-art">
-  <img src="prevention-illustration.jpg"
-       alt="Daily hygiene prevention essentials">
-</div>
+          <img src="prevention-illustration.jpg" alt="Daily hygiene prevention essentials">
+        </div>
         <div class="habit-grid">
           <article class="habit-card"><div class="habit-icon mint">🧼</div><h3>Wash hands</h3><p>20 seconds with soap, before eating and after the toilet.</p></article>
           <article class="habit-card"><div class="habit-icon blue">💧</div><h3>Drink clean water</h3><p>Boil, filter or treat water from uncertain sources.</p></article>
@@ -158,81 +156,67 @@ const DATA = {
 "Eczema":{title:"Eczema",what:"Skin dry ayi, itchy ayye problem.",symptoms:["Dry, rough skin","Red patches, night lo itching"],spreads:["Vere vallaki SPREAD AVVADU"],prevention:["Roju moisturizer raayi","Harsh soap vaddu"],cure:["Doctor cheppina moisturizer + cream","Trigger avoid cheyyali"]},
 "Psoriasis":{title:"Psoriasis",what:"Immune system valla skin cells fast ga perige problem.",symptoms:["Thick red patches, white scales","Itching, burning"],spreads:["Vere vallaki SPREAD AVVADU"],prevention:["Skin moisturize cheyyi","Stress thagginchu"],cure:["Doctor cream / treatment","Regular follow-up"]}
 };
-function getHTML(n){let d=DATA[n];return `<h4>🦠 What is it?</h4><p>${d.what}</p><h4>🤒 Symptoms</h4><ul>${d.symptoms.map(s=>`<li>${s}</li>`).join('')}</ul><h4>↔️ How it Spreads</h4><ul>${d.spreads.map(s=>`<li>${s}</li>`).join('')}</ul><h4>🛡️ Prevention</h4><ul>${d.prevention.map(s=>`<li>${s}</li>`).join('')}</ul><h4>💊 Cure / Care</h4><ul>${d.cure.map(s=>`<li>${s}</li>`).join('')}</ul>`}
+
+function getHTML(n){
+  let d=DATA[n];
+  return `<h4>🦠 What is it?</h4><p>${d.what}</p><h4>🤒 Symptoms</h4><ul>${d.symptoms.map(s=>`<li>${s}</li>`).join('')}</ul><h4>↔️ How it Spreads</h4><ul>${d.spreads.map(s=>`<li>${s}</li>`).join('')}</ul><h4>🛡️ Prevention</h4><ul>${d.prevention.map(s=>`<li>${s}</li>`).join('')}</ul><h4>💊 Cure / Care</h4><ul>${d.cure.map(s=>`<li>${s}</li>`).join('')}</ul>`;
+}
+
 async function checkDisease(){
-  let file = document.getElementById('skinImage').files[0];
+  let fileInput = document.getElementById('skinImage');
+  let file = fileInput.files[0];
   if(!file) return alert("Photo select cheyyi!");
+
   let box = document.getElementById('scannerResult');
   box.hidden = false;
   document.getElementById('diseaseName').innerText = "⏳ Checking with AI...";
-  document.getElementById('confidence').innerText = "";
+  document.getElementById('confidence').innerText = "Scanning photo with Gemini...";
   document.getElementById('details').innerHTML = "";
-  try{
+
+  try {
     let base64Image = await new Promise((resolve) => {
       let reader = new FileReader();
       reader.onload = () => resolve(reader.result);
       reader.readAsDataURL(file);
     });
-    // GitHub Pages kosam - Direct Gemini - No /api
-const API_KEY = "AQ.Ab8RN6KBjKg3BBLsg8AVhUs5bLbCnK5ba9uU1GJjc8K6NMcCXA";
-const base64Only = base64Image.includes(',') ? base64Image.split(',')[1] : base64Image;
-const API_KEY = "PASTE_YOUR_NEW_KEY_HERE";
-const base64Only = base64Image.includes(',') ? base64Image.split(',')[1] : base64Image;
 
-const prompt = `Look at this skin photo and identify the disease. Return ONLY valid JSON:
-{
-  "disease": "Disease Name",
-  "confidence": 0.90,
-  "what": "What it is",
-  "symptoms": ["Symptom 1", "Symptom 2"],
-  "spreads": ["How it spreads"],
-  "prevention": ["Prevention 1"],
-  "cure": ["Care/treatment 1", "Consult a doctor"]
-}`;
-let res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      contents: [{ parts: [
-        { text: prompt },
-        { inlineData: { mimeType: "image/jpeg", data: base64Only } }
-      ]}],
-      generationConfig: { responseMimeType: "application/json", temperature: 0.2 }
-    })
-});
-  { inlineData: { mimeType: "image/jpeg", data: base64Only } }
-]}],
-generationConfig: { responseMimeType: "application/json", temperature: 0.2 }
-})});
-let raw = await res.json();
-let text = raw?.candidates?.[0]?.content?.parts?.[0]?.text || "";
-let m = text.match(/\{[\s\S]*\}/);
-if (m) text = m[0];
-let data = JSON.parse(text);
-    console.log(data);
-    if(data.error) throw new Error(data.error);
+    const endpoint = window.location.hostname.includes("vercel.app")
+      ? "/api/analyze"
+      : "https://diseases-health-care.vercel.app/api/analyze";
+
+    let res = await fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ image: base64Image })
+    });
+
+    let data = await res.json();
+    if (!res.ok || data.error) {
+      throw new Error(data.error || "AI Scan failed");
+    }
+
     let disease = data.disease || "Unknown";
-    let conf = Math.round((data.confidence || 0.75) * 100);
-    document.getElementById('diseaseName').innerText = "Possible: " + disease + " - " + conf + "%";
+    let conf = Math.round((data.confidence || 0.8) * 100);
+    document.getElementById('diseaseName').innerText = "Possible: " + disease + " (" + conf + "%)";
     document.getElementById('confidence').innerText = "Confidence: " + conf + "% | AI detected: " + disease;
-    // Gemini nunchi vachina details unte vatine chupinchu, lekapothe mana DATA nunchi chupinchu
-    if(data.what){
+
+    if (data.what) {
       document.getElementById('details').innerHTML = `
         <h4>🦠 What is it?</h4><p>${data.what}</p>
         <h4>🤒 Symptoms</h4><ul>${(data.symptoms||[]).map(s=>`<li>${s}</li>`).join('')}</ul>
         <h4>↔️ How it Spreads</h4><ul>${(data.spreads||[]).map(s=>`<li>${s}</li>`).join('')}</ul>
         <h4>🛡️ Prevention</h4><ul>${(data.prevention||[]).map(s=>`<li>${s}</li>`).join('')}</ul>
         <h4>💊 Cure / Care</h4><ul>${(data.cure||[]).map(s=>`<li>${s}</li>`).join('')}</ul>
-        <p style="font-size:12px;color:#888">⚠️ Educational screening only. Confirm kosam dermatologist ni kalavandi.</p>`;
-    } else if(DATA[disease]){
+        <p style="font-size:12px;color:#888;margin-top:10px">⚠️ Educational screening only. Confirm kosam doctor ni kalavandi.</p>`;
+    } else if (DATA[disease]) {
       document.getElementById('details').innerHTML = getHTML(disease);
     } else {
-      document.getElementById('details').innerHTML = `<p>AI detected <b>${disease}</b> ga. Confirm kosam dermatologist ni kalavandi.</p>`;
+      document.getElementById('details').innerHTML = `<p>AI detected <b>${disease}</b>. Confirm kosam doctor ni kalavandi.</p>`;
     }
-  } catch(e){
-    document.getElementById('diseaseName').innerText = "❌ Failed";
+  } catch(e) {
+    document.getElementById('diseaseName').innerText = "❌ Scan Failed";
     document.getElementById('confidence').innerText = "Error: " + e.message;
-    document.getElementById('details').innerHTML = "<p>Vercel lo GEMINI_API_KEY check cheyyi. Key lekapothe / thappu ayithe idi vasthundhi.</p>";
+    document.getElementById('details').innerHTML = "<p>Vercel లో GEMINI_API_KEY సెట్ చేశారో లేదో ఒకసారి చెక్ చేయండి.</p>";
   }
 }
 </script>
