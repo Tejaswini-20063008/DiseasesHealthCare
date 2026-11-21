@@ -195,7 +195,6 @@ const prompt = `Look at this skin photo and identify the disease. Return ONLY va
   "prevention": ["Prevention 1"],
   "cure": ["Care/treatment 1", "Consult a doctor"]
 }`;
-
 let res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -220,10 +219,8 @@ let data = JSON.parse(text);
     if(data.error) throw new Error(data.error);
     let disease = data.disease || "Unknown";
     let conf = Math.round((data.confidence || 0.75) * 100);
-
     document.getElementById('diseaseName').innerText = "Possible: " + disease + " - " + conf + "%";
     document.getElementById('confidence').innerText = "Confidence: " + conf + "% | AI detected: " + disease;
-
     // Gemini nunchi vachina details unte vatine chupinchu, lekapothe mana DATA nunchi chupinchu
     if(data.what){
       document.getElementById('details').innerHTML = `
