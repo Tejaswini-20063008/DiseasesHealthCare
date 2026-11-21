@@ -37,57 +37,78 @@ Return ONLY valid JSON matching this exact structure:
 }
 Do not include markdown backticks or any other text outside the JSON.`;
 
-    // గూగుల్ లేటెస్ట్ మోడల్స్ లిస్ట్
-    const candidateModels = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash-latest"];
+    let candidateModels = [];
+    try {
+      const listRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+      const listData = await listRes.json();
+      if (listData.models && Array.isArray(listData.models)) {
+        const available = listData.models
+          .filter(m => m.supportedGenerationMethods && m.supportedGenerationMethods.includes("generateContent"))
+          .map(m => m.name.replace(/^models\//, ""));
+        
+        const flashModels = available.filter(name => name.includes("flash"));
+        const otherModels = available.filter(name => !name.includes("flash"));
+        candidateModels = [...flashModels, ...otherModels];
+      }
+    } catch (e) {
+      // fallback
+    }
+
+    if (candidateModels.length === 0) {
+      candidateModels = ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro", "gemini-2.0-flash-001"];
+    }
+
     let data = null;
-    let lastError = null;
+    let errors = [];
 
     for (const model of candidateModels) {
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [
-              {
-                parts: [
-                  { text: prompt },
-                  { inlineData: { mimeType: mimeType, data: base64 } }
-                ]
+      try {
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              contents: [
+                {
+                  parts: [
+                    { text: prompt },
+                    { inlineData: { mimeType: mimeType, data: base64 } }
+                  ]
+                }
+              ],
+              generationConfig: {
+                temperature: 0.2,
+                responseMimeType: "application/json"
               }
-            ],
-            generationConfig: {
-              temperature: 0.2,
-              responseMimeType: "application/json"
-            }
-          })
-        }
-      );
+            })
+          }
+        );
 
-      const result = await response.json();
-      if (!result.error) {
-        data = result;
-        break;
-      } else {
-        lastError = result.error.message;
+        const result = await response.json();
+        if (result.candidates && result.candidates[0]?.content?.parts?.[0]?.text) {
+          data = result;
+          break;
+        } else if (result.error) {
+          errors.push(`${model}: ${result.error.message}`);
+        }
+      } catch (err) {
+        errors.push(`${model}: ${err.message}`);
       }
     }
 
     if (!data) {
-      return res.status(400).json({ error: lastError || "Gemini API error" });
+      return res.status(400).json({ 
+        error: "Gemini API error: " + (errors[0] || "No compatible model responded")
+      });
     }
 
-    let text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
-    if (!text) {
-      return res.status(400).json({ error: "AI could not analyze this image. Please try a clearer photo." });
-    }
-
+    let text = data.candidates[0].content.parts[0].text.trim();
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (jsonMatch) text = jsonMatch[0];
 
     const parsed = JSON.parse(text);
-    return res.status(200).json(parsed);
+    return res.status(200).json({ success: true, ...parsed });
   } catch (err) {
     return res.status(500).json({ error: "Server error: " + err.message });
   }
