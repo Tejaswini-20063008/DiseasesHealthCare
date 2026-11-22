@@ -15,7 +15,7 @@ const diseases = [
 const diseaseGrid=document.getElementById("diseaseGrid");
 function renderDiseases(filter="All"){
  const shown=filter==="All"?diseases:diseases.filter(d=>d.category===filter);
- diseaseGrid.innerHTML=shown.map((d)=>`<article class="disease-card"><div class="disease-top"><span class="disease-icon">${d.icon}</span><span class="category-tag">${d.category}</span></div><h3>${d.name}</h3><p>${d.desc}</p><button class="learn-more" data-disease="${d.name}">Learn more <span>→</span></button></article>`).join("");
+ diseaseGrid.innerHTML=shown.map((d)=>`<article class="disease-card"><div class="disease-top"><img src="${d.image}" alt="${d.name}" class="disease-card-img"><span class="category-tag">${d.category}</span></div><h3>${d.name}</h3><p>${d.desc}</p><button class="learn-more" data-disease="${d.name}">Learn more <span>→</span></button></article>`).join("");
 }
 renderDiseases();
 document.getElementById("diseaseFilters").addEventListener("click",e=>{const b=e.target.closest("button[data-filter]");if(!b)return;document.querySelectorAll(".filter").forEach(x=>x.classList.toggle("active",x===b));renderDiseases(b.dataset.filter)});
